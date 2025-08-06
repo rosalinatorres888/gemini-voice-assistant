@@ -1,10 +1,12 @@
 import { GoogleGenAI, Chat } from "@google/genai";
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set in .env file");
+const API_KEY = import.meta.env.VITE_API_KEY || process.env.API_KEY;
+
+if (!API_KEY) {
+  throw new Error("API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey: API_KEY });
 
 export function createChat(): Chat {
   return ai.chats.create({
