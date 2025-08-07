@@ -1,5 +1,4 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
-import { type Chat } from '@google/genai';
 import { AppStatus, Message, Sender } from './types';
 import { createChat } from './services/geminiService';
 import { useVoice } from './hooks/useVoice';
@@ -11,7 +10,7 @@ const App: React.FC = () => {
     const [status, setStatus] = useState<AppStatus>(AppStatus.IDLE);
     const [messages, setMessages] = useState<Message[]>([]);
     const [error, setError] = useState<string | null>(null);
-    const geminiChat = useRef<Chat | null>(null);
+    const geminiChat = useRef<any>(null);
 
     useEffect(() => {
         geminiChat.current = createChat();
@@ -21,8 +20,9 @@ const App: React.FC = () => {
         if (!geminiChat.current) return;
         setStatus(AppStatus.PROCESSING);
         try {
-            const response = await geminiChat.current.sendMessage({ message: transcript });
-            const aiText = response.text;
+            const result = await geminiChat.current.sendMessage(transcript);
+            const response = await result.response;
+            const aiText = response.text();
             setMessages(prev => [...prev, { id: Date.now().toString(), sender: Sender.AI, text: aiText }]);
             setStatus(AppStatus.SPEAKING);
             speak(aiText);
@@ -59,7 +59,7 @@ const App: React.FC = () => {
     };
     
     useEffect(() => {
-        let silenceTimeout: NodeJS.Timeout;
+        let silenceTimeout: ReturnType<typeof setTimeout>;
         if (isListening) {
              silenceTimeout = setTimeout(() => {
                 stopListening();

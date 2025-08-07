@@ -1,4 +1,4 @@
-import { GoogleGenAI, Chat } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const API_KEY = import.meta.env.VITE_API_KEY || process.env.API_KEY;
 
@@ -6,13 +6,16 @@ if (!API_KEY) {
   throw new Error("API_KEY environment variable not set");
 }
 
-const ai = new GoogleGenAI({ apiKey: API_KEY });
+const genAI = new GoogleGenerativeAI(API_KEY);
 
-export function createChat(): Chat {
-  return ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: {
-      systemInstruction: 'You are a friendly and conversational AI assistant. Keep your responses concise and natural, as if you were speaking in a real conversation.',
-    },
+export function createChat() {
+  const model = genAI.getGenerativeModel({ 
+    model: "gemini-pro",
   });
+  
+  const chat = model.startChat({
+    history: [],
+  });
+  
+  return chat;
 }
